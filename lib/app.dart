@@ -5,13 +5,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        body: Container(
-          child: Center(
-            child: HomePageDataInsert(),
-          ),
-        ),
-      ),
+      home: HomePageDataInsert(),
     );
   }
 }

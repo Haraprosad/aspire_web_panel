@@ -1,9 +1,11 @@
+import 'dart:convert';
+
 import 'package:aspirewebpanel/core/colors.dart';
 import 'package:aspirewebpanel/core/text_style.dart';
-import 'package:aspirewebpanel/shared/image_loader.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'dart:html' as html;
 
 class HomePageDataInsert extends StatefulWidget {
   @override
@@ -11,10 +13,12 @@ class HomePageDataInsert extends StatefulWidget {
 }
 
 class _HomePageDataInsertState extends State<HomePageDataInsert> {
-  ImageLoader imageLoader = ImageLoader();
+
+  var _mbytesData = null;
+
   int group = 1;
   bool isHtml = true;
-  var bytesData;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,8 +224,8 @@ class _HomePageDataInsertState extends State<HomePageDataInsert> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              (bytesData != null)
-                  ? Image.memory(bytesData)
+              (_mbytesData != null)
+                  ? Image.memory(_mbytesData)
                   : Container(
                       margin: EdgeInsets.all(20),
                       color: Colors.white,
@@ -257,10 +261,7 @@ class _HomePageDataInsertState extends State<HomePageDataInsert> {
                 child: RaisedButton(
                   color: Colors.red,
                   onPressed: () {
-                    imageLoader.requestPickImage();
-                    setState(() {
-                      bytesData = imageLoader.bytesData;
-                    });
+                    pickImages();
                   },
                   child: Text(
                     "SUBMIT",
@@ -276,5 +277,29 @@ class _HomePageDataInsertState extends State<HomePageDataInsert> {
         ],
       ),
     );
+  }
+
+  Future<dynamic> pickImages() async {
+    html.InputElement uploadInput = html.FileUploadInputElement();
+    uploadInput.multiple = false;
+    uploadInput.draggable = true;
+    uploadInput.click();
+
+    uploadInput.onChange.listen((e) {
+      final files = uploadInput.files;
+      final file = files[0];
+      final reader = new html.FileReader();
+
+      reader.onLoadEnd.listen((e) {
+        var result = reader.result;
+        var _bytesData = Base64Decoder().convert(result.toString().split(",").last);
+        setState(() {
+          _mbytesData = _bytesData;
+        });
+        return _bytesData;
+      });
+
+      reader.readAsDataUrl(file);
+    });
   }
 }
